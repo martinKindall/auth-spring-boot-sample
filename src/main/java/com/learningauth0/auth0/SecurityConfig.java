@@ -41,6 +41,7 @@ public class SecurityConfig {
                 .pathMatchers("/actuator/**").permitAll()
                 .pathMatchers(OPTIONS, "/api/**").permitAll()
                 .pathMatchers(GET, "/api/private-scoped").hasAuthority("SCOPE_messages:read")
+                .pathMatchers(GET, "/api/private-scoped/write").hasAuthority("SCOPE_messages:write")
                 .anyExchange().authenticated()
                 .and()
                 .cors()

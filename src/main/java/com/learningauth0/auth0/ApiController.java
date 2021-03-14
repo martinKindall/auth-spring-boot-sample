@@ -19,7 +19,12 @@ public class ApiController {
     }
 
     @GetMapping(value = "/private-scoped")
-    public Mono<String> publicEndpoint() {
+    public Mono<String> scopedEndpoint() {
         return Mono.just("All good. You have the right scope to see this.");
+    }
+
+    @GetMapping(value = "/private-scoped/write")
+    public Mono<String> scopedWriteEndpoint() {
+        return Mono.just("All good. You have the right scope to write here.");
     }
 }
