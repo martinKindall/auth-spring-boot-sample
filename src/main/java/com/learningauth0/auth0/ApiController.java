@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping(path = "api", produces = MediaType.APPLICATION_JSON_VALUE)
 // For simplicity of this sample, allow all origins. Real applications should configure CORS for their use case.
@@ -19,8 +22,10 @@ public class ApiController {
     }
 
     @GetMapping(value = "/private-scoped")
-    public Mono<String> scopedEndpoint() {
-        return Mono.just("All good. You have the right scope to see this.");
+    public Mono<Map<String, String>> scopedEndpoint() {
+        return Mono.just(new HashMap<>(){{
+            put("description", "All good. You have the right scope to see this.");
+        }});
     }
 
     @GetMapping(value = "/private-scoped/write")
