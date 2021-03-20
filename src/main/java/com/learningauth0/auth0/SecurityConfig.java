@@ -7,6 +7,8 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.*;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
 import static org.springframework.http.HttpMethod.*;
@@ -21,34 +23,34 @@ public class SecurityConfig {
     private String issuer;
 
     @Bean
-    JwtDecoder jwtDecoder() {
-        NimbusJwtDecoder jwtDecoder = (NimbusJwtDecoder)
-                JwtDecoders.fromOidcIssuerLocation(issuer);
+    SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+        http
+                .authorizeExchange()
+                .pathMatchers("/actuator/**").permitAll()
+                .pathMatchers(OPTIONS, "/api/**").permitAll()
+                .pathMatchers(GET, "/api/private-scoped").hasAuthority("SCOPE_openid")
+                .anyExchange().authenticated()
+                .and()
+                .cors()
+                .and()
+                .oauth2ResourceServer()
+                .jwt()
+                .jwtDecoder(jwtDecoder());
+
+        return http.build();
+    }
+
+    ReactiveJwtDecoder jwtDecoder() {
+        NimbusReactiveJwtDecoder jwtDecoder = (NimbusReactiveJwtDecoder)
+                ReactiveJwtDecoders.fromOidcIssuerLocation(issuer);
 
         OAuth2TokenValidator<Jwt> audienceValidator = new AudienceValidator(audience);
         OAuth2TokenValidator<Jwt> withIssuer = JwtValidators.createDefaultWithIssuer(issuer);
         OAuth2TokenValidator<Jwt> withAudience = new DelegatingOAuth2TokenValidator<>(withIssuer, audienceValidator);
 
         jwtDecoder.setJwtValidator(withAudience);
+        jwtDecoder.setClaimSetConverter(new ClaimAdapter());
 
         return jwtDecoder;
-    }
-
-    @Bean
-    SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-        http
-                .authorizeExchange()
-                .pathMatchers("/actuator/**").permitAll()
-                .pathMatchers(OPTIONS, "/api/**").permitAll()
-                .pathMatchers(GET, "/api/private-scoped").hasAuthority("SCOPE_messages:read")
-                .pathMatchers(GET, "/api/private-scoped/write").hasAuthority("SCOPE_messages:write")
-                .anyExchange().authenticated()
-                .and()
-                .cors()
-                .and()
-                .oauth2ResourceServer()
-                .jwt();
-
-        return http.build();
     }
 }

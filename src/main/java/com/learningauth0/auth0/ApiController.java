@@ -1,5 +1,7 @@
 package com.learningauth0.auth0;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +18,8 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 public class ApiController {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ApiController.class);
+
     @GetMapping(value = "/welcome")
     public Mono<String> privateEndpoint() {
         return Mono.just("All good. You can see this because you are Authenticated.");
@@ -23,6 +27,7 @@ public class ApiController {
 
     @GetMapping(value = "/private-scoped")
     public Mono<Map<String, String>> scopedEndpoint() {
+        LOG.debug("Scoped route being requested");
         return Mono.just(new HashMap<>(){{
             put("description", "All good. You have the right scope to see this.");
         }});
