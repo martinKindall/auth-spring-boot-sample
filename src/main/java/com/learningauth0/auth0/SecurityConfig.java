@@ -7,8 +7,6 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.*;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
 import static org.springframework.http.HttpMethod.*;
@@ -28,7 +26,7 @@ public class SecurityConfig {
                 .authorizeExchange()
                 .pathMatchers("/actuator/**").permitAll()
                 .pathMatchers(OPTIONS, "/api/**").permitAll()
-                .pathMatchers(GET, "/api/private-scoped").hasAuthority("SCOPE_openid")
+                .pathMatchers(GET, "/api/private-scoped").hasAuthority("SCOPE_messages:write")
                 .anyExchange().authenticated()
                 .and()
                 .cors()
